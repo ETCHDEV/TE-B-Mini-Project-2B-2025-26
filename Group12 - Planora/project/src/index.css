@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 150 12% 96%;
+    --card: 210 20% 10%;
+    --card-foreground: 150 12% 96%;
+    --popover: 210 20% 8%;
+    --popover-foreground: 150 12% 96%;
+    --primary: 77 100% 61%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 210 25% 17%;
+    --secondary-foreground: 150 12% 96%;
+    --muted: 210 20% 15%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 210 25% 17%;
+    --accent-foreground: 150 12% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 20% 18%;
+    --input: 210 20% 18%;
+    --ring: 77 100% 61%;
+    --chart-1: 77 100% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.75rem;
+
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 150 12% 96%;
+    --card: 210 20% 10%;
+    --card-foreground: 150 12% 96%;
+    --popover: 210 20% 8%;
+    --popover-foreground: 150 12% 96%;
+    --primary: 77 100% 61%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 210 25% 17%;
+    --secondary-foreground: 150 12% 96%;
+    --muted: 210 20% 15%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 210 25% 17%;
+    --accent-foreground: 150 12% 96%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 20% 18%;
+    --input: 210 20% 18%;
+    --ring: 77 100% 61%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  
+  .font-body {
+    font-family: var(--font-body);
+  }
+  
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-primary to-emerald-400 bg-clip-text text-transparent;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 40px rgba(186, 255, 57, 0.3);
+  }
+
+  .scan-line {
+    background: linear-gradient(180deg, transparent 0%, hsl(var(--primary)) 50%, transparent 100%);
+  }
+
+  .grid-pattern {
+    background-image: 
+      linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Animations */
+@keyframes scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes draw-line {
+  0% { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-scan {
+  animation: scan 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
