@@ -15,26 +15,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
-// Gmail SMTP transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'muazshaikh7861@gmail.com',
-    pass: 'zizl cdoc olfn tevw' // App password
-  }
-});
 
-// Supabase client with service role key
-const supabase = createClient(
-  'https://eqydeitsqzvpuucbfsyu.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxeWRlaXRzcXp2cHV1Y2Jmc3l1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTQ5NDU2NCwiZXhwIjoyMDg3MDcwNTY0fQ.4EFZdogZ-XEqEaeqfSTH8VCH57KcEEj9X_IAieo9Sk4',
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
-    }
-  }
-);
 
 // Helper function to normalize status
 const normalizeStatus = (status) => {
