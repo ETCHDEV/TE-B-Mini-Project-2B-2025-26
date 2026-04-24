@@ -5,20 +5,6 @@ import express from 'express';
 const app = express();
 app.use(express.json());
 
-// Gmail SMTP transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'muazshaikh7861@gmail.com',
-    pass: 'zizl cdoc olfn tevw' // App password
-  }
-});
-
-// Supabase client
-const supabase = createClient(
-  'https://eqydeitsqzvpuucbfsyu.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxeWRlaXRzcXp2cHV1Y2Jmc3l1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTQ5NDU2NCwiZXhwIjoyMDg3MDcwNTY0fQ.4EFZdogZ-XEqEaeqfSTH8VCH57KcEEj9X_IAieo9Sk4'
-);
 
 app.post('/api/send-emails', async (req, res) => {
   try {
