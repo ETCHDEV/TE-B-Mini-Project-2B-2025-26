@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Classification Result</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 600px;
+            color: white;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .accuracy-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .news-text {
+            font-size: 15px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .Politics { background: #ff4d4d; }
+        .Sports { background: #00c853; }
+        .Business { background: #ffc107; color: black; }
+        .Technology { background: #00b0ff; }
+
+        .progress-container {
+            width: 100%;
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            overflow: hidden;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            border-radius: 30px;
+            transition: width 1.5s ease-in-out;
+        }
+
+        .confidence-text {
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>🤖 AI Classification Result</h1>
+
+    <div class="accuracy-box">
+        Model Accuracy: <strong>{{ accuracy }}%</strong>
+    </div>
+
+    <div class="news-text">
+        "{{ news }}"
+    </div>
+
+    <div class="badge {{ prediction }}">
+        {{ prediction }}
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="confidence-text">
+        Confidence Score: <strong>{{ confidence }}%</strong>
+    </div>
+
+    <form action="/">
+        <button class="btn">Analyze Another</button>
+    </form>
+</div>
+
+<script>
+    // Animate confidence bar
+    let confidence = {{ confidence }};
+    let progressBar = document.getElementById("progressBar");
+
+    setTimeout(() => {
+        progressBar.style.width = confidence + "%";
+    }, 300);
+</script>
+
+</body>
+</html>
