@@ -1,0 +1,21 @@
+age,income,education_level,purchased
+25,50000,Bachelor,No
+30,60000,Master,Yes
+22,35000,High School,No
+35,75000,PhD,Yes
+28,45000,Bachelor,No
+45,90000,Master,Yes
+33,55000,Bachelor,Yes
+29,48000,High School,No
+31,62000,Master,Yes
+27,52000,Bachelor,No
+38,80000,PhD,Yes
+24,38000,High School,No
+41,85000,Master,Yes
+32,58000,Bachelor,Yes
+26,42000,High School,No
+36,72000,PhD,Yes
+23,36000,High School,No
+34,68000,Master,Yes
+30,59000,Bachelor,Yes
+28,51000,Bachelor,No
