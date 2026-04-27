@@ -258,3 +258,8 @@ LOG_LEVEL=debug
 ## 📞 Support
 
 For technical support or questions, please refer to the project documentation or contact the development team.
+
+Tushar Zaware
+Aditya Sharma
+Ranjana Yadav
+Dhanshri Shinde
