@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SentimentLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#080c14; --bg2:#0d1220; --surface:#161e2e; --surface2:#1c2840;
+  --border:rgba(255,255,255,0.06); --border2:rgba(255,255,255,0.12);
+  --amber:#f5a623; --amber-glow:rgba(245,166,35,0.15);
+  --teal:#2dd4bf; --red:#f87171; --green:#4ade80;
+  --text:#e2e8f0; --muted:#64748b; --dim:#94a3b8;
+  --head:'Syne',sans-serif; --mono:'DM Mono',monospace; --r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(245,166,35,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+header{border-bottom:1px solid var(--border);padding:20px 0;position:sticky;top:0;z-index:100;background:rgba(8,12,20,.92);backdrop-filter:blur(16px)}
+.hdr{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--head);font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
+.logo-mark{width:32px;height:32px;background:var(--amber);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#000}
+.api-badge{font-size:11px;color:var(--muted);border:1px solid var(--border2);border-radius:4px;padding:4px 10px}
+.api-badge span{color:var(--teal)}
+.hero{padding:72px 0 48px;text-align:center}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;max-width:60px;height:1px;background:#b87a18}
+.hero h1{font-family:var(--head);font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:16px}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--amber),#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:15px;color:var(--dim);max-width:520px;margin:0 auto 40px}
+.pills{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.pill{background:var(--surface);border:1px solid var(--border2);border-radius:100px;padding:6px 16px;font-size:12px;color:var(--dim)}
+.pill strong{color:var(--amber)}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content;margin:0 auto 40px;flex-wrap:wrap;justify-content:center}
+.tab-btn{padding:8px 18px;border-radius:7px;border:none;cursor:pointer;font-family:var(--mono);font-size:13px;background:transparent;color:var(--muted);transition:all .2s}
+.tab-btn.active{background:var(--amber);color:#000;font-weight:500}
+.tab-btn:hover:not(.active){color:var(--text)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.ctitle{font-family:var(--head);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ctitle::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{margin-bottom:16px}
+label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:7px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-glow)}
+textarea{resize:vertical;min-height:80px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
+select option{background:var(--bg2)}
+.btn{padding:10px 24px;border:none;border-radius:7px;font-family:var(--mono);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--amber);color:#000}
+.btn-p:hover{background:#ffd700;transform:translateY(-1px)}
+.btn-p:active{transform:none}
+.btn-g{background:transparent;color:var(--muted);border:1px solid var(--border2)}
+.btn-g:hover{color:var(--text);background:var(--surface2)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:768px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.met{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;position:relative;overflow:hidden}
+.met::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.met.pos::before{background:var(--green)}
+.met.neg::before{background:var(--red)}
+.met.neu::before{background:var(--amber)}
+.met.inf::before{background:var(--teal)}
+.met-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px}
+.met-val{font-family:var(--head);font-size:28px;font-weight:800}
+.met-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.sbar-track{height:8px;border-radius:100px;background:var(--bg2);overflow:hidden;display:flex}
+.sbar-pos{height:100%;background:var(--green);transition:width .6s}
+.sbar-neu{height:100%;background:var(--amber);transition:width .6s}
+.sbar-neg{height:100%;background:var(--red);transition:width .6s}
+.rbar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.rbar-lbl{font-size:11px;color:var(--muted);width:16px;text-align:right}
+.rbar-track{flex:1;height:6px;background:var(--bg2);border-radius:100px;overflow:hidden}
+.rbar-fill{height:100%;background:var(--amber);border-radius:100px;transition:width .6s}
+.rbar-cnt{font-size:11px;color:var(--muted);width:36px;text-align:right}
+.rev{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.rev::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.rev.pos::before{background:var(--green)}
+.rev.neg::before{background:var(--red)}
+.rev-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.rev-user{font-size:12px;font-weight:500;color:var(--dim)}
+.rev-plat{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--muted)}
+.rev-stars{color:var(--amber);font-size:12px}
+.rev-txt{font-size:13px;color:var(--text);line-height:1.5}
+.rev-conf{font-size:10px;color:var(--muted);margin-top:6px}
+.rev-conf span{color:var(--amber)}
+.ptable{width:100%;border-collapse:collapse}
+.ptable th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border)}
+.ptable td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border)}
+.ptable tr:last-child td{border:none}
+.ptable tr:hover td{background:var(--surface2)}
+.chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.chip.high{background:rgba(74,222,128,.12);color:var(--green)}
+.chip.mid{background:rgba(245,166,35,.12);color:var(--amber)}
+.chip.low{background:rgba(248,113,113,.12);color:var(--red)}
+.pred-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:6px;margin:6px 0;font-size:13px;font-weight:500}
+.pred-badge.Positive{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.pred-badge.Negative{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.pred-badge.Neutral{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.pred-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.lb-row{display:grid;grid-template-columns:28px 1fr 80px 80px 70px 80px;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;transition:background .15s}
+.lb-row:hover{background:var(--surface2)}
+.lb-hdr{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--border)}
+.lb-rank{font-size:13px;font-weight:700;color:var(--muted);text-align:center}
+.lb-rank.gold{color:#ffd700}
+.lb-rank.silver{color:#c0c0c0}
+.lb-rank.bronze{color:#cd7f32}l
+.lb-name{font-size:13px;color:var(--text)}
+.best-badge{font-size:9px;background:var(--amber);color:#000;padding:1px 5px;border-radius:3px;margin-left:6px;font-weight:700}
+.lb-met{font-size:12px;color:var(--dim);text-align:right}
+.lb-bar-wrap{height:4px;background:var(--bg2);border-radius:100px;overflow:hidden}
+.lb-bar{height:100%;background:var(--amber);border-radius:100px;transition:width .8s}
+.loader{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:24px;justify-content:center}
+.spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-msg{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--red);border-radius:7px;padding:12px 16px;font-size:13px;margin:12px 0}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.empty .ico{font-size:32px;margin-bottom:8px}
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut-wrap svg{flex-shrink:0}
+.donut-leg{display:flex;flex-direction:column;gap:10px}
+.donut-li{display:flex;align-items:center;gap:8px;font-size:12px}
+.donut-dot{width:10px;height:10px;border-radius:2px}
+.donut-lbl{color:var(--dim)}
+.donut-val{color:var(--text);font-weight:500;margin-left:auto;padding-left:16px}
+.sec{margin-bottom:32px}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sec-hdr h2{font-family:var(--head);font-size:16px;font-weight:700}
+.srow{display:flex;gap:8px}
+.srow input{flex:1}
+.pb{padding-bottom:80px}
+.fade-in{animation:fadeIn .4s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px}
+/* AI PANEL */
+.ai-panel{background:linear-gradient(135deg,#0f1c2e,#111827);border:1px solid rgba(245,166,35,.3);border-radius:var(--r);padding:24px;position:relative;overflow:hidden}
+.ai-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.ai-phdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.ai-lbl{display:flex;align-items:center;gap:8px;font-family:var(--head);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber)}
+.ai-ico{width:22px;height:22px;background:var(--amber);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#000}
+.ai-mtag{font-size:10px;color:var(--muted);border:1px solid var(--border2);border-radius:4px;padding:2px 8px}
+.ai-qrow{display:flex;gap:8px;margin-bottom:16px}
+.ai-qrow input{flex:1}
+.ai-out{font-size:14px;line-height:1.9;color:var(--text);min-height:60px}
+.ai-placeholder{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px}
+.ai-placeholder::before{content:'\2726';color:var(--amber)}
+.cursor{display:inline-block;width:2px;height:14px;background:var(--amber);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.thinking{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.thinking .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse 1.2s ease-in-out infinite}
+.thinking .dot:nth-child(2){animation-delay:.2s}
+.thinking .dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.ai-bold{color:var(--amber);font-weight:600}
+.ai-num{display:inline-block;background:var(--amber);color:#000;width:18px;height:18px;border-radius:3px;text-align:center;line-height:18px;font-size:10px;font-weight:700;margin-right:4px}
+/* SUB TABS */
+.sub-tabs{display:flex;margin-bottom:24px;border-bottom:1px solid var(--border)}
+.stab{padding:8px 18px;border:none;background:none;font-family:var(--mono);font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.stab.active{color:var(--amber);border-bottom-color:var(--amber)}
+.stab:hover:not(.active){color:var(--text)}
+.sub-panel{display:none}
+.sub-panel.active{display:block}
+/* COMPARE */
+.cmp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cmp-row select{flex:1}
+.rm-btn{background:none;border:1px solid var(--border2);border-radius:6px;color:var(--muted);cursor:pointer;padding:6px 10px;font-size:12px;transition:all .15s}
+.rm-btn:hover{border-color:var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="hdr">
+      <a class="logo" href="#">
+        <div class="logo-mark">S</div>
+        ReviewLens
+      </a>
+      <div class="api-badge">API <span id="api-dot">&#x25CF;</span> localhost:8000</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero fade-in">
+    <div class="eyebrow">NLP &middot; Machine Learning &middot; Multi-Platform</div>
+    <h1>Review <em>Intelligence</em><br/>at Scale</h1>
+    <p>Analyze customer sentiment across 8 platforms, 51 products, 26K+ reviews &mdash; powered by a 10-model ML comparison engine.</p>
+    <div class="pills">
+      <div class="pill"><strong>26,515</strong> reviews</div>
+      <div class="pill"><strong>51</strong> products</div>
+      <div class="pill"><strong>8</strong> platforms</div>
+      <div class="pill"><strong>10</strong> models compared</div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('analyze',this)">Analyze Product</button>
+      <button class="tab-btn" onclick="switchTab('predict',this)">Predict Text</button>
+      <button class="tab-btn" onclick="switchTab('search',this)">Search Reviews</button>
+      <button class="tab-btn" onclick="switchTab('models',this)">Model Comparison</button>
+      <button class="tab-btn" onclick="switchTab('ai',this)">&#x2726; AI Insights</button>
+    </div>
+  </div>
+
+  <!-- ANALYZE TAB -->
+  <div id="tab-analyze" class="tab-panel active pb">
+    <div class="card sec fade-in">
+      <div class="ctitle">Product Analysis</div>
+      <div class="g2">
+        <div class="field"><label>Product Name</label><select id="prod-sel"><option value="">Loading...</option></select></div>
+        <div class="field"><label>Platform Filter</label><select id="plat-sel"><option value="">All Platforms</option></select></div>
+      </div>
+      <button class="btn btn-p" id="analyze-btn" onclick="runAnalysis()">Analyze &rarr;</button>
+    </div>
+    <div id="analysis-result"></div>
+  </div>
+
+  <!-- PREDICT TAB -->
+  <div id="tab-predict" class="tab-panel pb">
+    <div class="card sec fade-in">
+      <div class="ctitle">Sentiment Classifier</div>
+      <div class="field">
+        <label>Enter review text(s) &mdash; one per line</label>
+        <textarea id="predict-input" rows="5" placeholder="Amazing product! Works perfectly.&#10;Terrible quality, broke after 2 days.&#10;It is okay, nothing special."></textarea>
+      </div>
+      <button class="btn btn-p" onclick="runPredict()">Classify &rarr;</button>
+    </div>
+    <div id="predict-result"></div>
+  </div>
+
+  <!-- SEARCH TAB -->
+  <div id="tab-search" class="tab-panel pb">
+    <div class="card sec fade-in">
+      <div class="ctitle">Search Reviews</div>
+      <div class="field">
+        <label>Keyword</label>
+        <div class="srow">
+          <input type="text" id="search-q" placeholder="e.g. battery life, display quality..."/>
+          <button class="btn btn-p" onclick="runSearch()">Search &rarr;</button>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="field" style="margin:0"><label>Product</label><select id="search-prod"><option value="">All Products</option></select></div>
+        <div class="field" style="margin:0"><label>Platform</label><select id="search-plat"><option value="">All Platforms</option></select></div>
+        <div class="field" style="margin:0"><label>Sentiment</label>
+          <select id="search-sent">
+            <option value="">Any</option>
+            <option value="Positive">Positive</option>
+            <option value="Neutral">Neutral</option>
+            <option value="Negative">Negative</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="search-result"></div>
+  </div>
+
+  <!-- MODELS TAB -->
+  <div id="tab-models" class="tab-panel pb">
+    <div class="g2 sec">
+      <div class="card fade-in">
+        <div class="ctitle">Model Leaderboard</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Ranked by macro F1 on 80/20 stratified split.</p>
+        <button class="btn btn-g" onclick="loadLeaderboard()" style="margin-bottom:16px">Load Leaderboard</button>
+        <div id="lb-result"><div class="empty"><div class="ico">&#x1F3C6;</div>Click to load rankings</div></div>
+      </div>
+      <div class="card fade-in">
+        <div class="ctitle">Train / Retrain Models</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Triggers full 10-model comparison. Winner selected by macro F1.</p>
+        <p style="font-size:11px;color:var(--amber);margin-bottom:16px">&#x26A0;&#xFE0F; Takes 2&ndash;5 minutes.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-g" onclick="trainModels(false)">Train (skip if exists)</button>
+          <button class="btn btn-p" onclick="trainModels(true)">Force Retrain</button>
+        </div>
+        <div id="train-result" style="margin-top:16px"></div>
+      </div>
+    </div>
+    <div id="model-summary"></div>
+  </div>
+
+  <!-- AI INSIGHTS TAB -->
+  <div id="tab-ai" class="tab-panel pb">
+    <div class="sub-tabs">
+      <button class="stab active" onclick="switchSub('ai-single',this)">Single Product</button>
+      <button class="stab" onclick="switchSub('ai-compare',this)">Compare Products</button>
+    </div>
+
+    <!-- SINGLE -->
+    <div id="ai-single" class="sub-panel active">
+      <div class="card sec fade-in">
+        <div class="ctitle">AI Product Insight</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Runs ML analysis first, then sends results to GPT-4o-mini via OpenRouter for a natural-language report.</p>
+        <div class="g2">
+          <div class="field"><label>Product</label><select id="ai-prod"><option value="">-- Select a product --</option></select></div>
+          <div class="field"><label>Platform Filter</label><select id="ai-plat"><option value="">All Platforms</option></select></div>
+        </div>
+        <div class="field">
+          <label>Custom Question (optional)</label>
+          <input type="text" id="ai-q" placeholder="e.g. What do customers say about battery life?"/>
+        </div>
+        <button class="btn btn-p" id="ai-single-btn" onclick="runAiSingle()">&#x2726; Generate AI Insight &rarr;</button>
+      </div>
+      <div id="ai-single-ml"></div>
+      <div id="ai-single-out"></div>
+    </div>
+
+    <!-- COMPARE -->
+    <div id="ai-compare" class="sub-panel">
+      <div class="card sec fade-in">
+        <div class="ctitle">AI Product Comparison</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Compare 2&ndash;4 products. AI provides competitive analysis and buying recommendation.</p>
+        <div id="cmp-list">
+          <div class="cmp-row"><select class="cmp-sel"><option value="">-- Select product --</option></select></div>
+          <div class="cmp-row"><select class="cmp-sel"><option value="">-- Select product --</option></select><button class="rm-btn" onclick="removeCmp(this)">&#x2715;</button></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-g" onclick="addCmp()">+ Add Product</button>
+          <button class="btn btn-p" id="ai-cmp-btn" onclick="runAiCompare()">&#x2726; Compare with AI &rarr;</button>
+        </div>
+      </div>
+      <div id="ai-cmp-out"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var API = 'http://localhost:8000/api/v1';
+var lastAnalysis = null;
+
+// API STATUS
+function checkApi() {
+  var dot = document.getElementById('api-dot');
+  fetch('http://localhost:8000/health').then(function(r) {
+    dot.style.color = r.ok ? '#4ade80' : '#f87171';
+  }).catch(function() { dot.style.color = '#f87171'; });
+}
+checkApi();
+setInterval(checkApi, 15000);
+
+// TABS
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+function switchSub(name, btn) {
+  document.querySelectorAll('.sub-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.stab').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// LOAD META
+function loadMeta() {
+  Promise.all([
+    fetch(API + '/data/products').then(function(r) { return r.json(); }),
+    fetch(API + '/data/platforms').then(function(r) { return r.json(); })
+  ]).then(function(results) {
+    var products = results[0].products;
+    var platforms = results[1].platforms;
+    var pOpts = '<option value="">-- Select a product --</option>' + products.map(function(p) { return '<option>' + p + '</option>'; }).join('');
+    var plOpts = '<option value="">All Platforms</option>' + platforms.map(function(p) { return '<option>' + p + '</option>'; }).join('');
+    document.getElementById('prod-sel').innerHTML = pOpts;
+    document.getElementById('plat-sel').innerHTML = plOpts;
+    document.getElementById('search-prod').innerHTML = '<option value="">All Products</option>' + products.map(function(p) { return '<option>' + p + '</option>'; }).join('');
+    document.getElementById('search-plat').innerHTML = plOpts;
+    document.getElementById('ai-prod').innerHTML = pOpts;
+    document.getElementById('ai-plat').innerHTML = plOpts;
+    document.querySelectorAll('.cmp-sel').forEach(function(s) { s.innerHTML = pOpts; });
+  }).catch(function(e) { console.warn('Meta load failed:', e.message); });
+}
+loadMeta();
+
+// HELPERS
+function setLoading(id) {
+  document.getElementById(id).innerHTML = '<div class="loader"><div class="spinner"></div>Analyzing...</div>';
+}
+function setErr(id, msg) {
+  document.getElementById(id).innerHTML = '<div class="err-msg">&#x274C; ' + msg + '<br><small>Make sure FastAPI is running on localhost:8000</small></div>';
+}
+function stars(n) {
+  var s = ''; var r = Math.round(n);
+  for (var i = 0; i < r; i++) s += '&#x2605;';
+  for (var i = r; i < 5; i++) s += '&#x2606;';
+  return s;
+}
+function scoreClass(s) { return s >= 70 ? 'high' : s >= 45 ? 'mid' : 'low'; }
+
+// DONUT
+function donut(pos, neu, neg) {
+  var total = (pos + neu + neg) || 1;
+  var r = 52, cx = 60, cy = 60, stroke = 14;
+  var circ = 2 * Math.PI * r;
+  var segs = [
+    { val: pos, color: '#4ade80', label: 'Positive' },
+    { val: neu, color: '#f5a623', label: 'Neutral' },
+    { val: neg, color: '#f87171', label: 'Negative' }
+  ];
+  var paths = ''; var offset = 0;
+  for (var i = 0; i < segs.length; i++) {
+    var len = (segs[i].val / total) * circ;
+    paths += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + segs[i].color + '" stroke-width="' + stroke + '" stroke-dasharray="' + len + ' ' + (circ - len) + '" stroke-dashoffset="' + (-offset) + '" transform="rotate(-90 ' + cx + ' ' + cy + ')" opacity="0.85"/>';
+    offset += len;
+  }
+  var bestLabel = (pos >= neu && pos >= neg) ? 'Positive' : (neg >= neu ? 'Negative' : 'Neutral');
+  var bestColor = (pos >= neu && pos >= neg) ? '#4ade80' : (neg >= neu ? '#f87171' : '#f5a623');
+  var legend = segs.map(function(s) {
+    return '<div class="donut-li"><div class="donut-dot" style="background:' + s.color + '"></div><span class="donut-lbl">' + s.label + '</span><span class="donut-val">' + s.val + ' <small style="color:var(--muted)">(' + ((s.val / total) * 100).toFixed(1) + '%)</small></span></div>';
+  }).join('');
+  return '<div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="var(--bg2)" stroke-width="' + stroke + '"/>' + paths + '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" fill="' + bestColor + '" font-size="11" font-family="DM Mono,monospace" font-weight="500">' + bestLabel + '</text><text x="' + cx + '" y="' + (cy + 12) + '" text-anchor="middle" fill="var(--muted)" font-size="9" font-family="DM Mono,monospace">' + total + ' reviews</text></svg><div class="donut-leg">' + legend + '</div></div>';
+}
+
+// ANALYZE
+function runAnalysis() {
+  var product = document.getElementById('prod-sel').value;
+  if (!product) { alert('Please select a product'); return; }
+  var platform = document.getElementById('plat-sel').value;
+  var btn = document.getElementById('analyze-btn');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+  setLoading('analysis-result');
+  var body = { product_name: product, top_n: 5 };
+  if (platform) body.platforms = [platform];
+  fetch(API + '/ml/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail || 'API error'); }); })
+    .then(function(d) { lastAnalysis = d; renderAnalysis(d); })
+    .catch(function(e) { setErr('analysis-result', e.message); })
+    .finally(function() { btn.disabled = false; btn.textContent = 'Analyze →'; });
+}
+
+function renderAnalysis(d) {
+  var sent = d.sentiment_distribution || {};
+  var pos = sent.Positive || 0, neu = sent.Neutral || 0, neg = sent.Negative || 0;
+  var rd = d.rating_distribution || {};
+  var vals = [rd['5']||0, rd['4']||0, rd['3']||0, rd['2']||0, rd['1']||0];
+  var maxR = Math.max.apply(null, vals) || 1;
+
+  var rBars = '';
+  var stars2 = [5,4,3,2,1];
+  for (var i = 0; i < stars2.length; i++) {
+    var count = rd[String(stars2[i])] || 0;
+    var pct = ((count / maxR) * 100).toFixed(1);
+    rBars += '<div class="rbar-row"><div class="rbar-lbl">' + stars2[i] + '</div><div class="rbar-track"><div class="rbar-fill" style="width:' + pct + '%"></div></div><div class="rbar-cnt">' + count + '</div></div>';
+  }
+
+  function revCard(rev, cls) {
+    return '<div class="rev ' + cls + '"><div class="rev-meta"><span class="rev-user">' + rev.username + '</span><span class="rev-plat">' + rev.platform + '</span><span class="rev-stars">' + stars(rev.rating) + '</span></div><div class="rev-txt">' + rev.review_text + '</div><div class="rev-conf">Confidence: <span>' + (rev.ml_confidence * 100).toFixed(1) + '%</span> &middot; ' + rev.review_date + '</div></div>';
+  }
+
+  var topPos = (d.top_positive_reviews || []).slice(0, 5).map(function(r) { return revCard(r, 'pos'); }).join('') || '<div class="empty"><div class="ico">&#x1F4AC;</div>No positive reviews found</div>';
+  var topNeg = (d.top_negative_reviews || []).slice(0, 5).map(function(r) { return revCard(r, 'neg'); }).join('') || '<div class="empty"><div class="ico">&#x1F4AC;</div>No negative reviews found</div>';
+
+  var platRows = '';
+  var pb = d.platform_breakdown || [];
+  for (var i = 0; i < pb.length; i++) {
+    var p = pb[i];
+    var ps = p.sentiment_distribution || {};
+    var pp = ps.Positive||0, pn = ps.Neutral||0, pneg = ps.Negative||0;
+    var pt = (pp+pn+pneg) || 1;
+    platRows += '<tr><td>' + p.platform + '</td><td>' + p.total_reviews + '</td><td>' + p.avg_rating.toFixed(2) + ' &#x2605;</td><td><span class="chip ' + scoreClass(p.sentiment_score) + '">' + p.sentiment_score + '%</span></td><td><div class="sbar-track" style="height:6px"><div class="sbar-pos" style="width:' + (pp/pt*100).toFixed(1) + '%"></div><div class="sbar-neu" style="width:' + (pn/pt*100).toFixed(1) + '%"></div><div class="sbar-neg" style="width:' + (pneg/pt*100).toFixed(1) + '%"></div></div></td></tr>';
+  }
+
+  var ratingClass = d.avg_rating >= 4 ? 'pos' : d.avg_rating >= 3 ? 'neu' : 'neg';
+  var sentClass   = scoreClass(d.overall_sentiment_score) === 'high' ? 'pos' : scoreClass(d.overall_sentiment_score) === 'mid' ? 'neu' : 'neg';
+
+  var html = '<div class="fade-in">'
+    + '<div class="g4 sec">'
+    + '<div class="met inf"><div class="met-lbl">Total Reviews</div><div class="met-val">' + d.total_reviews + '</div><div class="met-sub">' + d.category + '</div></div>'
+    + '<div class="met ' + ratingClass + '"><div class="met-lbl">Avg Rating</div><div class="met-val">' + d.avg_rating + '</div><div class="met-sub">out of 5.0</div></div>'
+    + '<div class="met ' + sentClass + '"><div class="met-lbl">Sentiment Score</div><div class="met-val">' + d.overall_sentiment_score + '%</div><div class="met-sub">weighted positive index</div></div>'
+    + '<div class="met inf"><div class="met-lbl">Model Confidence</div><div class="met-val">' + (d.avg_model_confidence * 100).toFixed(1) + '%</div><div class="met-sub">avg across reviews</div></div>'
+    + '</div>'
+    + '<div class="g2 sec">'
+    + '<div class="card"><div class="ctitle">Sentiment Distribution</div>' + donut(pos, neu, neg) + '</div>'
+    + '<div class="card"><div class="ctitle">Rating Distribution</div>' + rBars + '</div>'
+    + '</div>'
+    + '<div class="card sec"><div class="ctitle">Platform Breakdown</div><table class="ptable"><thead><tr><th>Platform</th><th>Reviews</th><th>Avg Rating</th><th>Score</th><th>Mix</th></tr></thead><tbody>' + platRows + '</tbody></table></div>'
+    + '<div class="g2 sec"><div><div class="sec-hdr"><h2>&#x2705; Top Positive Reviews</h2></div>' + topPos + '</div><div><div class="sec-hdr"><h2>&#x274C; Top Negative Reviews</h2></div>' + topNeg + '</div></div>'
+    + '<div class="ai-panel sec" id="ai-inline">'
+    + '<div class="ai-phdr"><div class="ai-lbl"><div class="ai-ico">&#x2726;</div>AI Intelligence Report</div><span class="ai-mtag" id="ai-inline-model">gpt-4o-mini via OpenRouter</span></div>'
+    + '<div class="ai-qrow"><input type="text" id="ai-inline-q" placeholder="Ask a specific question... (optional)"/><button class="btn btn-p" id="ai-inline-btn" onclick="runInlineAi()">Generate Insight &rarr;</button></div>'
+    + '<div id="ai-inline-out"><div class="ai-placeholder">Click Generate Insight for an AI-powered analysis of this product</div></div>'
+    + '</div>'
+    + '</div>';
+
+  document.getElementById('analysis-result').innerHTML = html;
+}
+
+// AI INLINE
+function runInlineAi() {
+  if (!lastAnalysis) { document.getElementById('ai-inline-out').innerHTML = '<div class="err-msg">Run a product analysis first.</div>'; return; }
+  var question = document.getElementById('ai-inline-q').value.trim();
+  callAi(lastAnalysis, question, 'ai-inline-out', 'ai-inline-btn', 'ai-inline-model', 'Generate Insight →');
+}
+
+// SHARED AI CALL
+function callAi(analysisData, question, outId, btnId, modelId, resetLabel) {
+  var out = document.getElementById(outId);
+  var btn = document.getElementById(btnId);
+  var mod = document.getElementById(modelId);
+  btn.disabled = true; btn.textContent = '✦ Generating...';
+  out.innerHTML = '<div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>AI is reading ' + (analysisData.total_reviews || '') + ' reviews...</span></div>';
+  var body = { product_name: analysisData.product_name, analysis_data: analysisData };
+  if (question) body.question = question;
+  fetch(API + '/ai/insight', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail || 'AI error'); }); })
+    .then(function(d) {
+      if (mod) mod.textContent = d.model_used + ' via OpenRouter';
+      out.innerHTML = '';
+      typewrite(out, d.insight);
+    })
+    .catch(function(e) { out.innerHTML = '<div class="err-msg">&#x274C; ' + e.message + '<br><small>Check OPENROUTER_API_KEY in .env</small></div>'; })
+    .finally(function() { btn.disabled = false; btn.textContent = resetLabel; });
+}
+
+// TYPEWRITER
+function typewrite(el, text) {
+  el.innerHTML = '';
+  var cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  el.appendChild(cursor);
+  var i = 0;
+  var id = setInterval(function() {
+    if (i < text.length) {
+      el.removeChild(cursor);
+      el.innerHTML = fmtAi(text.substring(0, i + 1));
+      el.appendChild(cursor);
+      i += 4;
+    } else {
+      clearInterval(id);
+      el.removeChild(cursor);
+      el.innerHTML = fmtAi(text);
+    }
+  }, 20);
+}
+function fmtAi(t) {
+  return t
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<span class="ai-bold">$1</span>')
+    .replace(/^(\d+)\. /gm,'<span class="ai-num">$1</span> ')
+    .replace(/\n/g,'<br/>');
+}
+
+// PREDICT
+function runPredict() {
+  var raw = document.getElementById('predict-input').value.trim();
+  if (!raw) return;
+  var texts = raw.split('\n').map(function(t) { return t.trim(); }).filter(Boolean);
+  setLoading('predict-result');
+  fetch(API + '/ml/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texts: texts }) })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); }); })
+    .then(function(data) {
+      var rows = data.results.map(function(res, i) {
+        var s = res.scores;
+        var bars = ['Positive','Neutral','Negative'].map(function(lbl) {
+          var v = (s[lbl] * 100).toFixed(1);
+          var col = lbl === 'Positive' ? 'var(--green)' : lbl === 'Negative' ? 'var(--red)' : 'var(--amber)';
+          return '<div class="rbar-row" style="margin-bottom:4px"><div class="rbar-lbl" style="width:58px;color:var(--muted)">' + lbl + '</div><div class="rbar-track"><div class="rbar-fill" style="width:' + v + '%;background:' + col + '"></div></div><div class="rbar-cnt">' + v + '%</div></div>';
+        }).join('');
+        return '<div class="card" style="margin-bottom:12px"><div style="font-size:13px;color:var(--dim);margin-bottom:10px;font-style:italic">&ldquo;' + texts[i] + '&rdquo;</div><div class="pred-badge ' + res.sentiment + '"><div class="pred-dot"></div>' + res.sentiment + ' <span style="margin-left:8px;opacity:.7;font-size:11px">' + (res.confidence * 100).toFixed(1) + '% confidence</span></div><div style="margin-top:12px">' + bars + '</div></div>';
+      }).join('');
+      document.getElementById('predict-result').innerHTML = '<div class="fade-in">' + rows + '</div>';
+    })
+    .catch(function(e) { setErr('predict-result', e.message); });
+}
+document.getElementById('predict-input').addEventListener('keydown', function(e) { if (e.ctrlKey && e.key === 'Enter') runPredict(); });
+
+// SEARCH
+function runSearch() {
+  var query = document.getElementById('search-q').value.trim();
+  if (!query) return;
+  setLoading('search-result');
+  var body = { query: query, limit: 20 };
+  var prod = document.getElementById('search-prod').value;
+  var plat = document.getElementById('search-plat').value;
+  var sent = document.getElementById('search-sent').value;
+  if (prod) body.product_name = prod;
+  if (plat) body.platform = plat;
+  if (sent) body.sentiment = sent;
+  fetch(API + '/data/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); }); })
+    .then(function(data) {
+      if (!data.count) { document.getElementById('search-result').innerHTML = '<div class="empty"><div class="ico">&#x1F50D;</div>No reviews found for &ldquo;' + query + '&rdquo;</div>'; return; }
+      var re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      var rows = data.results.map(function(rev) {
+        var cls  = rev.sentiment === 'Positive' ? 'pos' : rev.sentiment === 'Negative' ? 'neg' : '';
+        var scol = rev.sentiment === 'Positive' ? 'var(--green)' : rev.sentiment === 'Negative' ? 'var(--red)' : 'var(--amber)';
+        var ht   = rev.review_text.replace(re, function(m) { return '<mark style="background:var(--amber-glow);color:var(--amber)">' + m + '</mark>'; });
+        return '<div class="rev ' + cls + '"><div class="rev-meta"><span class="rev-user">' + rev.username + '</span><span class="rev-plat">' + rev.platform + '</span><span style="font-size:11px;color:var(--muted)">' + rev.product_name + '</span><span class="rev-stars">' + stars(rev.rating) + '</span><span style="font-size:10px;padding:2px 8px;border-radius:4px;background:' + scol + '22;color:' + scol + '">' + rev.sentiment + '</span></div><div class="rev-txt">' + ht + '</div><div class="rev-conf">' + rev.review_date + '</div></div>';
+      }).join('');
+      document.getElementById('search-result').innerHTML = '<div class="fade-in"><div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + data.count + ' results for <strong style="color:var(--amber)">&ldquo;' + query + '&rdquo;</strong></div>' + rows + '</div>';
+    })
+    .catch(function(e) { setErr('search-result', e.message); });
+}
+document.getElementById('search-q').addEventListener('keydown', function(e) { if (e.key === 'Enter') runSearch(); });
+
+// LEADERBOARD
+function loadLeaderboard() {
+  var el = document.getElementById('lb-result');
+  el.innerHTML = '<div class="loader"><div class="spinner"></div>Loading...</div>';
+  fetch(API + '/models/leaderboard')
+    .then(function(r) {
+      if (r.status === 404) throw new Error('not_found');
+      return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); });
+    })
+    .then(function(data) {
+      var lb = data.leaderboard;
+      var best = data.best_model;
+      var maxF1 = Math.max.apply(null, lb.map(function(m) { return m.macro_f1; })) || 1;
+      var medals = ['&#x1F947;','&#x1F948;','&#x1F949;'];
+      var rows = lb.map(function(m, i) {
+        var rc = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        var pct = ((m.macro_f1 / maxF1) * 100).toFixed(1);
+        var badge = m.model === best ? '<span class="best-badge">BEST</span>' : '';
+        return '<div class="lb-row"><div class="lb-rank ' + rc + '">' + (medals[i] || ('#' + (i+1))) + '</div><div class="lb-name">' + m.model + badge + '</div><div class="lb-met">' + m.macro_f1.toFixed(4) + '</div><div class="lb-met">' + m.accuracy.toFixed(4) + '</div><div class="lb-met">' + m.train_time_sec.toFixed(2) + 's</div><div><div class="lb-bar-wrap"><div class="lb-bar" style="width:' + pct + '%"></div></div></div></div>';
+      }).join('');
+      el.innerHTML = '<div class="fade-in"><div class="lb-row lb-hdr"><div></div><div>Model</div><div style="text-align:right">Macro F1</div><div style="text-align:right">Accuracy</div><div style="text-align:right">Train</div><div>Relative</div></div>' + rows + '</div>';
+      document.getElementById('model-summary').innerHTML = '<div class="g3 sec fade-in"><div class="met pos"><div class="met-lbl">Winner</div><div class="met-val" style="font-size:18px">' + lb[0].model + '</div><div class="met-sub">Best by macro F1</div></div><div class="met inf"><div class="met-lbl">Macro F1</div><div class="met-val">' + lb[0].macro_f1.toFixed(4) + '</div><div class="met-sub">all 3 classes</div></div><div class="met neu"><div class="met-lbl">Models Compared</div><div class="met-val">' + lb.length + '</div><div class="met-sub">classifiers</div></div></div>';
+    })
+    .catch(function(e) {
+      el.innerHTML = e.message === 'not_found'
+        ? '<div class="empty"><div class="ico">&#x26A0;&#xFE0F;</div>No report found. Click Train first.</div>'
+        : '<div class="err-msg">&#x274C; ' + e.message + '</div>';
+    });
+}
+
+// TRAIN
+function trainModels(force) {
+  var el = document.getElementById('train-result');
+  el.innerHTML = '<div class="loader"><div class="spinner"></div>Training 10 models... 2&ndash;5 minutes.</div>';
+  fetch(API + '/models/train?force=' + force, { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.status === 'already_trained') {
+        el.innerHTML = '<div style="font-size:13px;color:var(--dim);padding:12px 0">&#x2705; Best model already trained: <strong style="color:var(--amber)">' + d.best_model + '</strong> (F1: ' + d.best_macro_f1 + ')<br><small style="color:var(--muted)">Use Force Retrain to re-run comparison.</small></div>';
+        return;
+      }
+      var lbRows = (d.leaderboard || []).map(function(m) {
+        return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px"><span style="color:' + (m.rank===1?'var(--amber)':'var(--dim)') + '">#' + m.rank + ' ' + m.model + '</span><span style="color:var(--muted)">F1: ' + m.macro_f1.toFixed(4) + ' &middot; ' + m.train_time_sec.toFixed(2) + 's</span></div>';
+      }).join('');
+      var cv = d.cross_validation || {};
+      el.innerHTML = '<div class="fade-in"><div style="color:var(--green);font-size:13px;margin-bottom:12px">&#x2705; Training complete!</div><div style="font-size:12px;color:var(--dim);margin-bottom:8px">Winner: <strong style="color:var(--amber)">' + d.best_model + '</strong> &middot; F1: ' + d.best_macro_f1 + ' &middot; Acc: ' + d.best_accuracy + '</div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">CV: ' + (cv.cv_f1_mean||'&mdash;') + ' &plusmn; ' + (cv.cv_f1_std||'&mdash;') + '</div><div style="max-height:180px;overflow-y:auto">' + lbRows + '</div></div>';
+    })
+    .catch(function(e) { setErr('train-result', e.message); });
+}
+
+// AI SINGLE
+function runAiSingle() {
+  var product = document.getElementById('ai-prod').value;
+  if (!product) { alert('Please select a product'); return; }
+  var platform = document.getElementById('ai-plat').value;
+  var question = document.getElementById('ai-q').value.trim();
+  var btn = document.getElementById('ai-single-btn');
+  btn.disabled = true; btn.textContent = '✦ Running ML + AI...';
+  document.getElementById('ai-single-ml').innerHTML = '';
+  document.getElementById('ai-single-out').innerHTML = '<div class="ai-panel sec"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Running ML analysis...</span></div></div>';
+
+  var mlBody = { product_name: product, top_n: 5 };
+  if (platform) mlBody.platforms = [platform];
+
+  fetch(API + '/ml/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(mlBody) })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); }); })
+    .then(function(ml) {
+      var s = ml.sentiment_distribution || {};
+      var pos = s.Positive||0, neu = s.Neutral||0, neg = s.Negative||0;
+      var sentClass = scoreClass(ml.overall_sentiment_score) === 'high' ? 'pos' : scoreClass(ml.overall_sentiment_score) === 'mid' ? 'neu' : 'neg';
+      var ratingClass = ml.avg_rating >= 4 ? 'pos' : ml.avg_rating >= 3 ? 'neu' : 'neg';
+      document.getElementById('ai-single-ml').innerHTML =
+        '<div class="g4 sec fade-in">'
+        + '<div class="met inf"><div class="met-lbl">Reviews</div><div class="met-val">' + ml.total_reviews + '</div><div class="met-sub">' + ml.category + '</div></div>'
+        + '<div class="met ' + ratingClass + '"><div class="met-lbl">Avg Rating</div><div class="met-val">' + ml.avg_rating + '</div><div class="met-sub">/ 5.0</div></div>'
+        + '<div class="met ' + sentClass + '"><div class="met-lbl">Sentiment Score</div><div class="met-val">' + ml.overall_sentiment_score + '%</div><div class="met-sub">weighted index</div></div>'
+        + '<div class="met inf" style="padding:14px">' + donut(pos, neu, neg) + '</div>'
+        + '</div>';
+
+      document.getElementById('ai-single-out').innerHTML =
+        '<div class="ai-panel sec fade-in">'
+        + '<div class="ai-phdr"><div class="ai-lbl"><div class="ai-ico">&#x2726;</div>AI Intelligence Report &mdash; ' + product + '</div><span class="ai-mtag" id="ai-single-model">Calling OpenRouter...</span></div>'
+        + '<div id="ai-single-text"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>AI is reading the data...</span></div></div>'
+        + '</div>';
+
+      var aiBody = { product_name: product, analysis_data: ml };
+      if (question) aiBody.question = question;
+      return fetch(API + '/ai/insight', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(aiBody) });
+    })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); }); })
+    .then(function(d) {
+      document.getElementById('ai-single-model').textContent = d.model_used + ' via OpenRouter';
+      var outEl = document.getElementById('ai-single-text');
+      outEl.innerHTML = '';
+      typewrite(outEl, d.insight);
+    })
+    .catch(function(e) { document.getElementById('ai-single-out').innerHTML = '<div class="err-msg">&#x274C; ' + e.message + '<br><small>Check OPENROUTER_API_KEY in .env</small></div>'; })
+    .finally(function() { btn.disabled = false; btn.textContent = '✦ Generate AI Insight →'; });
+}
+
+// COMPARE
+function addCmp() {
+  var list = document.getElementById('cmp-list');
+  if (list.children.length >= 4) { alert('Maximum 4 products'); return; }
+  var opts = document.querySelector('.cmp-sel').innerHTML;
+  var row = document.createElement('div');
+  row.className = 'cmp-row';
+  row.innerHTML = '<select class="cmp-sel">' + opts + '</select><button class="rm-btn" onclick="removeCmp(this)">&#x2715;</button>';
+  list.appendChild(row);
+}
+function removeCmp(btn) {
+  var list = document.getElementById('cmp-list');
+  if (list.children.length <= 2) return;
+  btn.parentElement.remove();
+}
+function runAiCompare() {
+  var products = Array.from(document.querySelectorAll('.cmp-sel')).map(function(s) { return s.value; }).filter(Boolean);
+  if (products.length < 2) { alert('Select at least 2 products'); return; }
+  var btn = document.getElementById('ai-cmp-btn');
+  var resultEl = document.getElementById('ai-cmp-out');
+  btn.disabled = true; btn.textContent = '✦ Comparing...';
+  resultEl.innerHTML = '<div class="ai-panel sec"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Running ML on ' + products.length + ' products...</span></div></div>';
+
+  fetch(API + '/ml/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_names: products }) })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); }); })
+    .then(function(data) {
+      var mlP = data.products;
+      var n = Math.min(mlP.length, 4);
+      var cards = mlP.map(function(p) {
+        var sc = p.sentiment_distribution || {};
+        var cls = scoreClass(p.overall_sentiment_score) === 'high' ? 'pos' : scoreClass(p.overall_sentiment_score) === 'mid' ? 'neu' : 'neg';
+        return '<div class="met ' + cls + '"><div class="met-lbl" style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + p.product_name + '</div><div class="met-val" style="font-size:22px">' + p.overall_sentiment_score + '%</div><div class="met-sub">Avg: ' + p.avg_rating + ' &#x2605; &middot; ' + p.total_reviews + ' reviews</div><div style="margin-top:8px;height:4px;display:flex;border-radius:100px;overflow:hidden"><div style="flex:' + (sc.Positive||0) + ';background:var(--green)"></div><div style="flex:' + (sc.Neutral||0) + ';background:var(--amber)"></div><div style="flex:' + (sc.Negative||0) + ';background:var(--red)"></div></div></div>';
+      }).join('');
+      resultEl.innerHTML =
+        '<div style="display:grid;grid-template-columns:repeat(' + n + ',1fr);gap:12px" class="sec fade-in">' + cards + '</div>'
+        + '<div class="ai-panel sec fade-in"><div class="ai-phdr"><div class="ai-lbl"><div class="ai-ico">&#x2726;</div>AI Comparison &amp; Buying Recommendation</div><span class="ai-mtag" id="ai-cmp-model">Calling OpenRouter...</span></div><div id="ai-cmp-text"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>AI is comparing products...</span></div></div></div>';
+
+      return fetch(API + '/ai/compare-insight', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_names: products }) });
+    })
+    .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.detail); }); })
+    .then(function(d) {
+      document.getElementById('ai-cmp-model').textContent = d.model_used + ' via OpenRouter';
+      var outEl = document.getElementById('ai-cmp-text');
+      outEl.innerHTML = '';
+      typewrite(outEl, d.ai_comparison);
+    })
+    .catch(function(e) { resultEl.innerHTML = '<div class="err-msg">&#x274C; ' + e.message + '<br><small>Check OPENROUTER_API_KEY in .env</small></div>'; })
+    .finally(function() { btn.disabled = false; btn.textContent = '✦ Compare with AI →'; });
+}
+</script>
+</body>
+</html>
